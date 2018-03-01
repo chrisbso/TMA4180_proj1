@@ -14,14 +14,14 @@ def evalute_f(z, w, A, c):
     # z is n x m matrix
     # w is 1 x m matrix (labels of z_i-s)
     # A is n x n matrix
-    # c is n x 1 matrix
+    # c is 1 x n matrix
     f = 0
     for i in range(m):
-        z_i = z[:, [i]]  # extract column i of matrix z, i.e. element z_i, i=0,...,m-1
+        z_i = z[:, i]  # extract column i of matrix z, i.e. element z_i, i=0,...,m-1
         if w[i] == 1:
-            r_i = max(np.dot(np.dot(np.transpose((z_i - c)), A), (z_i - c))-1, 0);
+            r_i = max(np.dot((z_i - c), np.dot(A, (z_i - c)))-1, 0);
         elif w[i] == -1:
-            r_i = max(1 - np.dot(np.dot(np.transpose((z_i - c)), A), (z_i - c)), 0)
+            r_i = max(1 - np.dot((z_i - c), np.dot(A, (z_i - c))), 0)
         f = f + r_i ** 2;
     return f;
 
@@ -40,9 +40,9 @@ def generate_rnd_points(A, c, m):
     w = np.ones(m)
     (width,height,angle) = ellipsoid_parameters(A)
     for i in range(m):
-        z[:, [i]] = (max(width,height))*np.random.rand(n, 1)-max(width,height)/2
-        z_i = z[:, [i]]
-        if np.dot(np.dot(np.transpose((z_i - c)), A), (z_i - c))-1 > 0:
+        z[:, i] = (max(width,height))*np.random.rand(1, n)-max(width,height)/2
+        z_i = z[:, i]
+        if np.dot((z_i - c), np.dot(A, (z_i - c)))-1 > 0:
             w[i] = -1.0
     return z, w
 
@@ -72,7 +72,7 @@ def plot_ellipsoid(A, c):
 
 def plot_test():
     A = generate_rnd_PD_mx(2)
-    c = np.array([[0], [0]])
+    c = np.array([0,0])
     plot_ellipsoid(A, c)
     (z, w) = generate_rnd_points(A, c, 20)
     plt.plot(np.take(z[0,:],np.where(w==1)[0]),np.take(z[1,:],np.where(w==1)[0]),'ro')
