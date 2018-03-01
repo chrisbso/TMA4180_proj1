@@ -5,7 +5,7 @@ import numpy as np
 
 def main():
     A = generate_rnd_PD_mx(2)
-    plot_ellipsoid(A,np.array([[0.5],[0.5]]))
+    plot_ellipsoid(A,np.array([[0.0],[0.0]]))
 
 def evalute_f(z,w,A,c):
     m = w.shape[1]
@@ -32,23 +32,24 @@ def generate_rnd_PD_mx(n):
     return A
 
 
-def generate_rnd_points(A,m):
+def generate_rnd_points(A,c,m):
     n = A.shape[0]
     z = np.zeros([n,m])
     for i in range(m):
         z[:,i] = np.random.rand(1,n)
 
+def ellipsoid_parameters(A,c):
+    (eigenvals, eigenvecs) = np.linalg.eig(A)
+    width = 2 * np.sqrt(eigenvals[1])
+    height = 2 * np.sqrt(eigenvals[0])
+    angle = np.arctan2(eigenvecs[0, 0], eigenvecs[0, 1]);
+    return (width,height,angle)
+
 def plot_ellipsoid(A,c):
     assert(A.shape[0] == 2)
-    assert(A.shape[0] == 2) #make sure we're in 2d
-
-    (eigenvals,eigenvecs) = np.linalg.eig(A)
-    wwidth = 2*np.sqrt(eigenvals[1])
-    hheight = 2*np.sqrt(eigenvals[0])
+    assert(c.shape[0] == 2) #make sure we're in 2d
+    (wwidth,hheight,aangle) = ellipsoid_parameters(A,c)
     plotLimit = max(wwidth,hheight)/2
-    print(eigenvals)
-    print(eigenvecs)
-    aangle = np.arctan2(eigenvecs[0,0],eigenvecs[0,1]);
     plt.figure()
     ax = plt.gca()
     ax.set_xlim(c[0]-plotLimit,c[0]+plotLimit)
@@ -59,6 +60,7 @@ def plot_ellipsoid(A,c):
     print(aangle)
     ax.add_artist(ellipse)
     plt.show()
+    return plotLimit
 
 
 if __name__ == "__main__":
