@@ -12,7 +12,7 @@ def generate_rnd_PD_mx(n):
     alpha = 0.0005  # to guarantee our matrix is PD and not PSD.
     A = np.random.rand(n, n)  # A is now random n x n matrix
     A = np.dot(A, A.transpose())  # A is now PSD
-    A = A + alpha * np.identity(n)  # A is now PD
+    A = A + alpha * np.identity(n);  # A is now PD
     return A
 
 
