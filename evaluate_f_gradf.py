@@ -21,7 +21,7 @@ def evaluate_f_m1(z, w, A, c):
         f += r_i ** 2
     return f
 
-def evaluate_grad_r_i_m1(z_i,w_i,A,c):
+def evaluate_grad_r_i_m1(z_i,A,c):
     n = A.shape[0]
     l = 0;
     grad_r = np.zeros(int(n * (n + 1) / 2 + n))
@@ -44,8 +44,8 @@ def evaluate_grad_f_m1(z,w,A,c):
         if (isInRightSet_m1(z_i,w_i,A,c)):
             continue
         else:
-            grad_r = w_i*evaluate_grad_r_i_m1(z_i,w_i,A,c)
-            tail = 2 * np.dot(A,c - z_i)
+            grad_r = w_i*evaluate_grad_r_i_m1(z_i,A,c)
+            tail = 2 * np.matmul(c-z_i,A)
             grad_r[int(n*(n+1)/2):] = tail
             r = evaluate_r_i_m1(z_i, w_i, A, c)
             grad_f += r * grad_r

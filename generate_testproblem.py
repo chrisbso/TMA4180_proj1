@@ -1,6 +1,5 @@
 from matplotlib.patches import Ellipse
 from matplotlib import pyplot as plt
-import numpy as np
 from evaluate_f_gradf import *
 
 def main():
@@ -77,6 +76,7 @@ def evaluate_test():
     # compare directional derivative with finite differences
     for ep in 10.0**np.arange(-1,-13,-1):
         g_app = (evaluate_f_m1(z,w,A+ep*A_p,c+ep*c_p)-f0)/ep
+        print(g_app)
         error = abs(g_app-g)/abs(g)
         print('ep = %e, error = %e' % (ep,error))
 
