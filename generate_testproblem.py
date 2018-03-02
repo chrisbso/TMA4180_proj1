@@ -1,10 +1,11 @@
 from matplotlib.patches import Ellipse
 from matplotlib import pyplot as plt
 import numpy as np
-from evalute_f_v2 import *
+from evaluate_f_gradf import *
 
 def main():
-    plot_test()
+    #plot_test()
+    evaluate_test()
 
 
 def generate_rnd_PD_mx(n):
@@ -23,7 +24,7 @@ def generate_rnd_points(A, c, m):
     for i in range(m):
         z[:, i] = max(width,height)*np.random.rand(1, n)-max(width,height)/2
         z_i = z[:, i]
-        if np.dot((z_i - c), np.dot(A, (z_i - c)))-1 > 0:
+        if np.dot((z_i - c), np.dot(A, (z_i - c)))-1 >= 0:
             w[i] = -1.0
     return z, w
 
@@ -59,6 +60,12 @@ def plot_test():
     plt.plot(np.take(z[0,:],np.where(w==1)[0]),np.take(z[1,:],np.where(w==1)[0]),'ro')
     plt.plot(np.take(z[0,:],np.where(w==-1)[0]),np.take(z[1,:],np.where(w==-1)[0]),'bo')
     plt.show()
+
+def evaluate_test():
+    A = generate_rnd_PD_mx(2)
+    c = np.array([0,0])
+    plot_ellipsoid(A, c)
+    (z, w) = generate_rnd_points(A, c, 20)
 
 if __name__ == "__main__":
     main()
