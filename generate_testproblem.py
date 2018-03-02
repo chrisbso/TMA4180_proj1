@@ -2,6 +2,7 @@ from matplotlib.patches import Ellipse
 from matplotlib import pyplot as plt
 import numpy as np
 from evaluate_f_gradf import *
+from algos import *
 
 def main():
     #plot_test()
@@ -63,7 +64,7 @@ def plot_test():
 
 def evaluate_test():
     A = generate_rnd_PD_mx(2)
-    c = np.array([0,0])
+    c = np.array([1,1])
     (z, w) = generate_rnd_points(A, c, 20)
     A = generate_rnd_PD_mx(2)
     plot_ellipsoid(A, c)
@@ -74,6 +75,8 @@ def evaluate_test():
     f0= evaluate_f_m1(z,w,A,c)
     g = evaluate_grad_f_m1(z,w,A,c).dot(p)
     (A_p,c_p)  = convert_x_To_A_and_c(p)
+    
+    
     # compare directional derivative with finite differences
     for ep in 10.0**np.arange(-1,-13,-1):
         g_app = (evaluate_f_m1(z,w,A+ep*A_p,c+ep*c_p)-f0)/ep
