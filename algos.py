@@ -9,6 +9,7 @@ Created on Thu Mar  1 19:41:24 2018
 import numpy as np
 import matplotlib.pyplot as plt
 from evaluate_f_gradf import *
+from generate_testproblem import *
 
 
 
@@ -61,14 +62,17 @@ def phi_inv(matrix, vector):
 def backtracking(func, gradfunc, x,A, vec, p, start, rho, c_1, dim):
     
     alpha=start
-    
+        
     # grad is morre the derivate here
     # dot: scalar product of the derivate(1 x n matrix!) and p (1 x n matrix!)
     
     A_new,vec_new=phi(x+alpha*p, dim)
+    print(A_new)
+    print(A)
     while(func(A_new,vec_new)>func(A, vec)+c_1*alpha*gradfunc(A,vec).dot(p)):
-        print('Hi2')
+        #print(gradfunc(A,vec))
         alpha= rho*alpha
+        
     
     return alpha
 
@@ -80,15 +84,14 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     alpha=initial_alpha
     #np.linalg.norm(gradfunc(x))
     while ( alpha > tol):
-        print('Hi1')
+        
         A,vec=phi(x,dim)
         p=-gradfunc(A,vec)
         print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               (k, func(A,c), np.linalg.norm(p,2), alpha))
         alpha= backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
-        
         x= x+ alpha*p
-        print('Hi3')
+        
         k += 1
         
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
@@ -96,6 +99,9 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     
     return x
 
+
+
+    
 
 
 if __name__ == "__main__":
@@ -106,8 +112,8 @@ if __name__ == "__main__":
     (z, w) = generate_rnd_points(A, c, 200)
     
     # for model 1
-    f= lambda A,c: evalute_f(z, w, A, c)
-    gradf = lambda A,c: np.array([1,2,3,4,5])
+    f= lambda A,c: evaluate_f_m1(z, w, A, c)
+    gradf = lambda A,c: evaluate_grad_f_m1(z,w,A,c)
     
     # for model 2
     #g= lambda A,b: 
@@ -120,13 +126,13 @@ if __name__ == "__main__":
     tolerance=limit/100
     alpha=0.9
     rho=0.5
-    c_1= 10**-4
+    c_1= 0.25
     # for inital values
     A_initial = generate_rnd_PD_mx(dim)
     c_initial = np.random.rand(dim)
     x_initial=np.zeros(int(0.5*(dim*(dim+1))+dim)) # to be added
     x_initial=phi_inv(A_initial, c_initial)
-    h=evalute_f(z, w, A, c) # later on (z,w,phi(x))
+    #h=evaluate_f_m1(z, w, A, c) # later on (z,w,phi(x))
     #print(h) # to check...
     #print(f(A,c))
     minimum=steepest_descent(f, gradf,x_initial, alpha,rho, c_1, tolerance, dim)   
