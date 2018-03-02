@@ -21,9 +21,10 @@ def evaluate_f_m1(z, w, A, c):
         f += r_i ** 2
     return f
 
-def evaluate_grad_r_i_m1(z_i,w_i,A,c,):
+def evaluate_grad_r_i_m1(z_i,w_i,A,c):
+    n = A.shape[0]
     l = 0;
-    grad_r = np.zeros(n * (n + 1) / 2 + n)
+    grad_r = np.zeros(int(n * (n + 1) / 2 + n))
     for j in range(n):
         for k in range(j, n):
             if j == k:
@@ -31,30 +32,31 @@ def evaluate_grad_r_i_m1(z_i,w_i,A,c,):
             else:
                 grad_r[l] = 2 * (z_i[j] - c[j]) * (z_i[k] - c[k])
             l += 1
+    return grad_r
 
 def evaluate_grad_f_m1(z,w,A,c):
     n = A.shape[0]
     m = z.shape[1]
-    grad_f = np.zeros(n*(n+1)/2+n)
-    grad_r = np.zeros(n*(n+1)/2+n)
+    grad_f = np.zeros(int(n*(n+1)/2+n))
     for i in range(m):
         z_i = z[:,i]
         w_i = w[i]
         if (isInRightSet_m1(z_i,w_i,A,c)):
             continue
         else:
-            grad_r = w[i]*evaluate_grad_r_i_m1(z_i,w_i,A,c)
-            tail = 2 * np.dot(c - z_i,A)
-            grad_r[n*(n+1)/2:] = tail
-            r = evaluate_grad_r_i_m1(z_i, w_i, A, c)
+            grad_r = w_i*evaluate_grad_r_i_m1(z_i,w_i,A,c)
+            tail = 2 * np.dot(A,c - z_i)
+            grad_r[int(n*(n+1)/2):] = tail
+            r = evaluate_r_i_m1(z_i, w_i, A, c)
             grad_f += r * grad_r
     grad_f *= 2
+    return grad_f
 
 def isInRightSet_m1(z_i,w_i,A,c):
     isIn = False
-    if np.dot((z_i - c), np.dot(A, (z_i - c)))-1 < 0 && w_i == 1:
+    if np.dot((z_i - c), np.dot(A, (z_i - c)))-1 < 0 and w_i == 1:
         isIn = True
-    elif np.dot((z_i - c), np.dot(A, (z_i - c)))-1 > 0 && w_i == -1:
+    elif np.dot((z_i - c), np.dot(A, (z_i - c)))-1 > 0 and w_i == -1:
         isIn = True
     return isIn
 
