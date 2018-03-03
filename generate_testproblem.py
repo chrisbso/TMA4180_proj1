@@ -44,8 +44,8 @@ def plot_ellipsoid(A, c):
     plotLimit = max(wwidth, hheight) / 2
     plt.figure()
     ax = plt.gca()
-    ax.set_xlim(-plotLimit,plotLimit)
-    ax.set_ylim(-plotLimit,plotLimit)
+    ax.set_xlim(c[0]-plotLimit,c[0]+plotLimit)
+    ax.set_ylim(c[1]-plotLimit,c[1]+plotLimit)
 
     ellipse = Ellipse(xy=(c[0], c[1]), width=wwidth, height=hheight, angle=aangle * 180 / (np.pi),
                       edgecolor='r', fc='None', lw=2)
