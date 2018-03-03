@@ -1,5 +1,6 @@
 import numpy as np
 ##MODEL 1
+#################################################################################################
 # z is n x m matrix
 # w is 1 x m matrix (labels of z_i-s)
 # A is n x n matrix
@@ -66,6 +67,7 @@ def isInRightSet_m1(z_i,w_i,A,c):
     return isIn
 
 ##MODEL 2
+#############################################################################################
     # z is n x m matrix
     # w is 1 x m matrix (labels of z_i-s)
     # A is n x n matrix
@@ -126,8 +128,8 @@ def evaluate_grad_f_m2(z,w,A,b):
 #Check if the points are in S_{A,b} or not, and give indication whether or not they should
 def isInRightSet_m2(z_i,w_i,A,b):
     isIn = False
-    if (np.dot(z_i, np.dot(A, z_i))+ np.dot(b,z_i))-1 < 0 and w_i == 1:
+    if (np.dot(z_i, np.dot(A, z_i))+ np.dot(z_i,b))-1 < 0 and w_i == 1:
         isIn = True
-    elif (np.dot(z_i, np.dot(A, z_i))+ np.dot(b,z_i))-1 > 0 and w_i == -1:
+    elif (np.dot(z_i, np.dot(A, z_i))+ np.dot(z_i,b))-1 > 0 and w_i == -1:
         isIn = True
     return isIn

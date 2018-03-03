@@ -3,67 +3,107 @@ from matplotlib import pyplot as plt
 from evaluate_f_gradf import *
 import numpy as np
 
+
 def main():
     #plot_test()
-    evaluate_test()
+    n = 100; #dimension
+    m = 1000; #points
+    evaluate_test_m1(n,m)
+    evaluate_test_m2(n,m)
 
-def evaluate_test():
-    A1 = generate_rnd_PD_mx(2)
-    A2 = generate_rnd_mx(2)
-    c = b = generate_rnd_b_c(2)
 
-    (z, w) = generate_rnd_points_m1(A1, c, 20)
-    (z2,w2) = generate_rnd_points_m2(A2,b,60)
-    plot_ellipsoid_m1(A1, c, z, w)
-    plot_ellipsoid_m2(A2, b, z2, w2)
-    A1 = generate_rnd_PD_mx(2)
-    A2 = generate_rnd_mx(2)
-    c = b = generate_rnd_b_c(2)
+def evaluate_test_m1(n,m):
+    #generate A,c to make points
+    A = generate_rnd_PD_mx(n)
+    c = generate_rnd_b_c(n)
+    #generate points with w_i's
+    (z, w) = generate_rnd_points_m1(A, c, m)
+    #plot ellipsoid (A,c) and points z,w (if in 2D)
+    if n == 2:
+        plot_ellipsoid_m1(A, c, z, w)
+        plt.title('Model 1: Ellipsoid (A,c) with points and labels')
+        plt.show()
 
-    plot_ellipsoid_m1(A1, c, z, w)
-    plot_ellipsoid_m2(A2,b,z2,w2)
-    plt.show()
 
-    '''
-    p = np.random.randn(5)
+    #generate another A,c
+    A = generate_rnd_PD_mx(n)
+    c = generate_rnd_b_c(n)
+    #plot new ellipsoid with the "old" points z,w (if in 2D):
+
+    if n == 2:
+        plot_ellipsoid_m1(A, c, z, w)
+        plt.title('Model 1: New ellipsoid (A,c) with previous points and labels')
+        plt.show()
+
+    #generate random direction
+    p = np.random.randn(int(n * (n + 1) / 2 + n))
     f0 = evaluate_f_m1(z, w, A, c)
     g = evaluate_grad_f_m1(z, w, A, c).dot(p)
     (A_p, c_p) = convert_x_To_A_and_c(p)
     # compare directional derivative with finite differences
+    print('Model 1: compare directional derivative with finite differences')
     for ep in 10.0 ** np.arange(-1, -13, -1):
         g_app = (evaluate_f_m1(z, w, A + ep * A_p, c + ep * c_p) - f0) / ep
-        print(g_app)
+        #print(g_app)
         error = abs(g_app - g) / abs(g)
         print('ep = %e, error = %e' % (ep, error))
+    print('\n')
+    #print(evaluate_grad_f_m1(z, w, A, c))
 
-    print(evaluate_grad_f_m1(z, w, A, c))
-    '''
-    p = np.random.randn(5)
-    f0 = evaluate_f_m2(z2, w2, A2, b)
-    g = evaluate_grad_f_m2(z2, w2, A2, b).dot(p)
+
+
+def evaluate_test_m2(n,m):
+    # generate A,b to make points
+    A = generate_rnd_mx(n)
+    b = generate_rnd_b_c(n)
+
+    # generate points with w_i's
+    (z,w) = generate_rnd_points_m2(A,b,m)
+
+    # plot ellipsoid (A,b) and points z,w (if in 2D)
+    if n == 2:
+        plot_ellipsoid_m2(A, b, z, w)
+        plt.title('Model 2: Ellipsoid (A,b) with points and labels')
+        plt.show()
+
+    # generate another (A,b)
+    A = generate_rnd_mx(n)
+    b = generate_rnd_b_c(n)
+
+    # plot new ellipsoid with the "old" points z,w (if in 2D)
+    if n == 2:
+        plot_ellipsoid_m2(A,b,z,w)
+        plt.title('Model 2: New ellipsoid (A,b) with previous points and labels')
+        plt.show()
+
+    # generate random direction
+    p = np.random.randn(int(n * (n + 1) / 2 + n))
+    f0 = evaluate_f_m2(z, w, A, b)
+    g = evaluate_grad_f_m2(z, w, A, b).dot(p)
     (A_p, b_p) = convert_x_To_A_and_c(p)
     # compare directional derivative with finite differences
+    print('Model 2: compare directional derivative with finite differences')
     for ep in 10.0 ** np.arange(-1, -13, -1):
-        g_app = (evaluate_f_m2(z2, w2, A2 + ep * A_p, b + ep * b_p) - f0) / ep
-        print(g_app)
+        g_app = (evaluate_f_m2(z, w, A + ep * A_p, b + ep * b_p) - f0) / ep
+        #print(g_app)
         error = abs(g_app - g) / abs(g)
         print('ep = %e, error = %e' % (ep, error))
-    print(evaluate_grad_f_m2(z2, w2, A2, b))
-
+    #print(evaluate_grad_f_m2(z, w, A, b))
 
 def generate_rnd_PD_mx(n):
     alpha = 0.2  # to guarantee our matrix is PD and not PSD.
-    A = np.random.rand(n, n)  # A is now random n x n matrix
-    A = np.dot(A, A.transpose())  # A is now PSD
-    A = A + alpha * np.identity(n)  # A is now PD
+    A = np.random.rand(n, n) # A is now random n x n matrix
+    A = np.matmul(A,A.transpose())# A is now PSD
+    #  A is now PD
     return A
 
 def generate_rnd_mx(n):
-    A = 4*np.random.rand(n, n) - 2
-    A = np.dot(A, A.transpose())
+    A = np.random.rand(n, n)
+    A = np.matmul(A, A.transpose())
     return A
+
 def generate_rnd_b_c(n):
-    return (3*np.random.rand(n)-3/2)
+    return n*np.random.rand(n)-n/2
 
 def convert_x_To_A_and_c(x):
 
@@ -82,13 +122,14 @@ def convert_x_To_A_and_c(x):
 
 
 ##Model 1
+################################################################################################
 def generate_rnd_points_m1(A, c, m):
     n = A.shape[0]
     z = np.zeros([n, m])
     w = np.ones(m)
-    (width,height,angle) = ellipsoid_parameters_m1(A)
+    minEig = np.max(np.abs(np.linalg.eigvals(A)))
     for i in range(m):
-        z[:, i] = max(width,height)*np.random.rand(1, n)-max(width,height)/2
+        z[:, i] = 5/np.sqrt(minEig)*np.random.rand(n)-5/(2*np.sqrt(minEig))
         for j in range(n):
             z[j,i] += c[j]
         z_i = z[:, i]
@@ -96,7 +137,7 @@ def generate_rnd_points_m1(A, c, m):
             w[i] = -1.0
     return z, w
 
-
+#Using the parallaxis theorem, the ellipsis can be drawn faster than when using 0-level contours.
 def ellipsoid_parameters_m1(A):
     (eigenvals, eigenvecs) = np.linalg.eig(A)
     width = 2 / np.sqrt(eigenvals[0])
@@ -109,8 +150,10 @@ def plot_ellipsoid_m1(A, c, z,w):
     assert (A.shape[0] == 2)
     assert (c.shape[0] == 2)  # make sure we're in 2d
     plotLimit = max(np.max(z), np.abs(np.min(z)));
-    plotLimit *= 1.5
+    plotLimit *= 1.2
     plt.figure()
+    plt.xlabel(r'$z_1$')
+    plt.ylabel(r'$z_2$')
     ax = plt.gca()
     ax.set_xlim(-plotLimit,plotLimit)
     ax.set_ylim(-plotLimit,plotLimit)
@@ -121,7 +164,6 @@ def plot_ellipsoid_m1(A, c, z,w):
     ellipse = Ellipse(xy=(c[0], c[1]), width=wwidth, height=hheight, angle=aangle * 180 / (np.pi),
                       edgecolor='k', fc='None', lw=2)
     ax.add_artist(ellipse)
-    return plotLimit
 
 ''' THIS HAS BEEN MADE REDUNDANT
 def plot_test_m1():
@@ -137,7 +179,7 @@ def plot_test_m1():
 
 
 ##Model 2
-
+##################################################################################################
 def plot_ellipsoid_m2(A,b,z,w):
     assert(A.shape[0] == 2) #make sure we're in 2d
     assert(b.shape[0] == 2)
@@ -161,14 +203,16 @@ def plot_ellipsoid_m2(A,b,z,w):
     plt.contour((Z1),(Z2),Z,0)
     plt.xlim(-maxPlotLimit, maxPlotLimit)
     plt.ylim(-maxPlotLimit, maxPlotLimit)
-    plt.show()
+    plt.xlabel(r'$z_1$')
+    plt.ylabel(r'$z_2$')
 
 def generate_rnd_points_m2(A, b, m):
     n = A.shape[0]
     z = np.zeros([n, m])
     w = np.ones(m)
+    minEig = (np.min(np.abs(np.linalg.eigvals(A))))
     for i in range(m):
-        z[:, i] = 10*np.random.rand(1, n)-5
+        z[:, i] = 2*np.max(A)*np.random.rand(n)-np.max(A)
         z_i = z[:, i]
         if ((np.dot(z_i, np.dot(A, z_i))+ np.dot(z_i,b))-1) >= 0:
             w[i] = -1.0
