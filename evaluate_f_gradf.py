@@ -76,7 +76,7 @@ def evaluate_r_i_m2(z_i,w_i,A,b):
     if w_i == 1:
         r_i = max(np.dot(z_i, np.dot(A, z_i))+ np.dot(b,z_i)-1, 0)
     elif w_i == -1:
-        r_i = max(1 -np.dot(z_i, np.dot(A,z_i))+ np.dot(b,z_i), 0)
+        r_i = max(1 -(np.dot(z_i, np.dot(A,z_i))+ np.dot(b,z_i)), 0)
     return r_i
 
 
@@ -92,7 +92,7 @@ def evaluate_f_m2(z, w, A, b):
 
 
 #Calculate grad{r_i} according to model 2
-def evaluate_grad_r_i_m2(z_i,A,b):
+def evaluate_grad_r_i_m2(z_i,A):
     n = A.shape[0]
     l = 0;
     grad_r = np.zeros(int(n * (n + 1) / 2 + n))
@@ -117,7 +117,7 @@ def evaluate_grad_f_m2(z,w,A,b):
         if (isInRightSet_m2(z_i,w_i,A,b)):
             continue
         else:
-            grad_r = w_i*evaluate_grad_r_i_m2(z_i,A,b)
+            grad_r = w_i*evaluate_grad_r_i_m2(z_i,A)
             r = evaluate_r_i_m2(z_i, w_i, A, b)
             grad_f += r * grad_r
     grad_f *= 2
