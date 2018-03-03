@@ -150,7 +150,7 @@ if __name__ == "__main__":
     A = generate_rnd_PD_mx(dim)
     c = np.array([1,1]) # need c from other programm!
     
-    (z, w) = generate_rnd_points(A, c, 200)
+    (z, w) = generate_rnd_points_m1(A, c, 200)
     
     # for model 1
     f= lambda A,c: evaluate_f_m1(z, w, A, c)
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     #gradg = lambda A,b: 
     
     
-    (wwidth, hheight, aangle) = ellipsoid_parameters(A)
+    (wwidth, hheight, aangle) = ellipsoid_parameters_m1(A)
     limit = max(wwidth, hheight) / 2
     
     tolerance=limit
@@ -181,7 +181,9 @@ if __name__ == "__main__":
     
     #GAUSS NEWTON
     #gauss_newton(f, gradf,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
-
-
     
-
+    
+    M=np.array([[1,2],[3,4]])
+    (width, height, angle)=ellipsoid_parameters_m1(M)
+    #print(width)
+    #print(height)
