@@ -6,7 +6,7 @@ import numpy as np
 
 def main():
     #plot_test()
-    n = 2; #dimension
+    n = 200; #dimension
     m = 100; #points
     evaluate_test_m1(n,m)
     evaluate_test_m2(n,m)
@@ -41,12 +41,25 @@ def evaluate_test_m1(n,m):
     g = evaluate_grad_f_m1(z, w, A, c).dot(p)
     (A_p, c_p) = convert_x_To_A_and_c(p)
     # compare directional derivative with finite differences
+    eps = 10.0 ** np.arange(-1, -13, -1)
+    error_vec = np.zeros(len(eps))
     print('Model 1: compare directional derivative with finite differences')
-    for ep in 10.0 ** np.arange(-1, -13, -1):
+    i = 0
+    for ep in eps:
         g_app = (evaluate_f_m1(z, w, A + ep * A_p, c + ep * c_p) - f0) / ep
         #print(g_app)
-        error = abs(g_app - g) / abs(g)
-        print('ep = %e, error = %e' % (ep, error))
+        error_vec[i] = abs(g_app - g) / abs(g)
+
+
+        print('ep = %e, error = %e' % (ep, error_vec[i]))
+        i += 1
+    plt.figure()
+    plt.loglog(eps,error_vec,'ro-')
+    plt.xlabel('Steplength',fontsize = 12)
+    plt.ylabel('Relative error',fontsize = 12)
+    plt.title('Model 1: Relative error between directional derivative and finite difference approximation',fontsize = 10)
+    plt.figtext(0.65, 0.15, 'n = ' + str(n) + ', m = ' + str(m),fontsize = 12)
+    plt.show()
     print('\n')
     #print(evaluate_grad_f_m1(z, w, A, c))
 
@@ -82,14 +95,25 @@ def evaluate_test_m2(n,m):
     g = evaluate_grad_f_m2(z, w, A, b).dot(p)
     (A_p, b_p) = convert_x_To_A_and_c(p)
     # compare directional derivative with finite differences
+    eps = 10.0 ** np.arange(-1, -13, -1)
+    error_vec = np.zeros(len(eps))
     print('Model 2: compare directional derivative with finite differences')
-    for ep in 10.0 ** np.arange(-1, -13, -1):
+    i = 0
+    for ep in eps:
         g_app = (evaluate_f_m2(z, w, A + ep * A_p, b + ep * b_p) - f0) / ep
-        #print(g_app)
-        error = abs(g_app - g) / abs(g)
-        print('ep = %e, error = %e' % (ep, error))
-    #print(evaluate_grad_f_m2(z, w, A, b))
+        # print(g_app)
+        error_vec[i] = abs(g_app - g) / abs(g)
 
+        print('ep = %e, error = %e' % (ep, error_vec[i]))
+        i += 1
+    plt.figure()
+    plt.loglog(eps, error_vec,'ro-')
+    plt.xlabel('Steplength',fontsize = 12)
+    plt.ylabel('Relative error',fontsize = 12)
+    plt.title('Model 2: Relative error between directional derivative and finite difference approximation',fontsize = 10)
+    plt.figtext(0.65,0.15,'n = ' + str(n) + ', m = ' + str(m),fontsize = 12)
+    plt.show()
+    #print(evaluate_grad_f_m2(z, w, A, b))
 def generate_rnd_PD_mx(n):
     alpha = 0.2  # to guarantee our matrix is PD and not PSD.
     A = np.random.rand(n, n) # A is now random n x n matrix
@@ -211,7 +235,6 @@ def generate_rnd_points_m2(A, b, m):
     n = A.shape[0]
     z = np.zeros([n, m])
     w = np.ones(m)
-    minEig = (np.min(np.abs(np.linalg.eigvals(A))))
     for i in range(m):
         z[:, i] = 2*np.max(A)*np.random.rand(n)-np.max(A)
         z_i = z[:, i]
