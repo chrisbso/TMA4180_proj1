@@ -6,8 +6,8 @@ import numpy as np
 
 def main():
     #plot_test()
-    n = 100; #dimension
-    m = 1000; #points
+    n = 2; #dimension
+    m = 100; #points
     evaluate_test_m1(n,m)
     evaluate_test_m2(n,m)
 
@@ -94,12 +94,13 @@ def generate_rnd_PD_mx(n):
     alpha = 0.2  # to guarantee our matrix is PD and not PSD.
     A = np.random.rand(n, n) # A is now random n x n matrix
     A = np.matmul(A,A.transpose())# A is now PSD
+    A = A+alpha
     #  A is now PD
     return A
 
 def generate_rnd_mx(n):
     A = np.random.rand(n, n)
-    A = np.matmul(A, A.transpose())
+    A = A+A.transpose()/2
     return A
 
 def generate_rnd_b_c(n):
