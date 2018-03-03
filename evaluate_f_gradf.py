@@ -2,9 +2,9 @@ import numpy as np
 ##MODEL 1
 def evaluate_r_i_m1(z_i,w_i,A,c):
     if w_i == 1:
-        r_i = np.max(np.dot((z_i - c), np.dot(A, (z_i - c)))-1, 0)
+        r_i = max(np.dot((z_i - c), np.dot(A, (z_i - c)))-1, 0)
     elif w_i == -1:
-        r_i = np.max(1 - np.dot((z_i - c), np.dot(A, (z_i - c))), 0)
+        r_i = max(1 - np.dot((z_i - c), np.dot(A, (z_i - c))), 0)
     return r_i
 
 def evaluate_f_m1(z, w, A, c):

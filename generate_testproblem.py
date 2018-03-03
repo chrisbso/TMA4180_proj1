@@ -1,7 +1,7 @@
 from matplotlib.patches import Ellipse
 from matplotlib import pyplot as plt
 from evaluate_f_gradf import *
-from algos import *
+import numpy as np
 
 def main():
     #plot_test()
