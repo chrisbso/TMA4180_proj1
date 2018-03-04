@@ -6,7 +6,7 @@ import numpy as np
 
 def main():
     #plot_test()
-    n = 100; #dimension
+    n = 2; #dimension
     m = 50; #points
     #For test functions:
     #**setting n = 2 gives plots of model 1 and model 2 with points z_i's
@@ -25,7 +25,7 @@ def evaluate_test_m1(n,m):
     #plot ellipsoid (A,c) and points z,w (if in 2D)
     if n == 2:
         plot_ellipsoid_m1(A, c, z, w)
-        plt.title('Model 1: Ellipsoid (A,c) with points and labels')
+        plt.title(r'Model 1: $S(A,c)$ with points and labels')
         plt.show()
 
 
@@ -36,7 +36,7 @@ def evaluate_test_m1(n,m):
 
     if n == 2:
         plot_ellipsoid_m1(A, c, z, w)
-        plt.title('Model 1: New ellipsoid (A,c) with previous points and labels')
+        plt.title(r'Model 1: New $S(A,c)$ with previous points and labels')
         plt.show()
 
     #generate random direction
@@ -80,7 +80,7 @@ def evaluate_test_m2(n,m):
     # plot ellipsoid (A,b) and points z,w (if in 2D)
     if n == 2:
         plot_ellipsoid_m2(A, b, z, w)
-        plt.title('Model 2: Ellipsoid (A,b) with points and labels')
+        plt.title(r'Model 2: $\hat{S}(A,b)$ with points and labels')
         plt.show()
 
     # generate another (A,b)
@@ -90,7 +90,7 @@ def evaluate_test_m2(n,m):
     # plot new ellipsoid with the "old" points z,w (if in 2D)
     if n == 2:
         plot_ellipsoid_m2(A,b,z,w)
-        plt.title('Model 2: New ellipsoid (A,b) with previous points and labels')
+        plt.title(r'Model 2: New $\hat{S}(A,b)$ with previous points and labels')
         plt.show()
 
     # generate random direction
