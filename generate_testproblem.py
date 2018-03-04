@@ -6,8 +6,12 @@ import numpy as np
 
 def main():
     #plot_test()
-    n = 200; #dimension
+    n = 400; #dimension
     m = 100; #points
+    #For test functions:
+    #**setting n = 2 gives plots of model 1 and model 2 with points z_i's
+    #**If error is returned then you're just very unlucky with how your points and
+    #your test models misaligned - try again! :)
     evaluate_test_m1(n,m)
     evaluate_test_m2(n,m)
 
@@ -124,7 +128,7 @@ def generate_rnd_PD_mx(n):
 
 def generate_rnd_mx(n):
     A = np.random.rand(n, n)
-    A = A+A.transpose()/2
+    A = (A+A.transpose())/2
     return A
 
 def generate_rnd_b_c(n):

@@ -277,6 +277,7 @@ if __name__ == "__main__":
     plot_convergence(conv1, conv2, 'g', 'c','steepest descent','Gauß-Newton')
     string="Model 1, alpha=10"
     plt.title(string)
+    plt.show()
     
        
     
@@ -284,16 +285,19 @@ if __name__ == "__main__":
     plot_convergence(conv3, conv4, 'g', 'c','steepest descent','Gauß-Newton')
     string="Model 2, alpha=10"
     plt.title(string)
+    plt.show()
     
     
     plt.figure(3)
     plot_convergence(conv1, conv3, 'r', 'k','Model 1','Model 2')
     string="steepest descent, alpha=10"
     plt.title(string)
+    plt.show()
     
     
     plt.figure(4)
     plot_convergence(conv2, conv4, 'r', 'k','Model 1','Model 2')
     string="Gauß-Newton, alpha=10"
     plt.title(string)
+    plt.show()
     
