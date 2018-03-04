@@ -6,8 +6,8 @@ import numpy as np
 
 def main():
     #plot_test()
-    n = 400; #dimension
-    m = 100; #points
+    n = 100; #dimension
+    m = 50; #points
     #For test functions:
     #**setting n = 2 gives plots of model 1 and model 2 with points z_i's
     #**If error is returned then you're just very unlucky with how your points and
@@ -240,7 +240,7 @@ def generate_rnd_points_m2(A, b, m):
     z = np.zeros([n, m])
     w = np.ones(m)
     for i in range(m):
-        z[:, i] = 2*np.max(A)*np.random.rand(n)-np.max(A)
+        z[:, i] = 6*np.max(A)*np.random.rand(n)-3*np.max(A)
         z_i = z[:, i]
         if ((np.dot(z_i, np.dot(A, z_i))+ np.dot(z_i,b))-1) >= 0:
             w[i] = -1.0
