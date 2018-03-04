@@ -227,7 +227,30 @@ def plot_convergence(conv_1, conv_2, color_1, color_2, label1,label2):
     plt.tight_layout(pad=7)
     
 def plot_levelsets(array,z):
-    
+    maxPlotLimit = max(np.max(z), np.abs(np.min(z)));
+    maxPlotLimit *= 1.5
+
+    delta = 0.1
+    z1 = z2 = np.arange(-maxPlotLimit, maxPlotLimit, delta)
+    Z1, Z2 = np.meshgrid(z1, z2)
+    Z = np.ones_like(Z1)
+    color = np.array(['y', 'b', 'r', 'c', 'g'])
+
+    for r in range(array.shape[0]):
+        A, c = phi(array[r, :], 2)
+
+        for i in range(len(z1)):
+            for j in range(len(z1)):
+                z_i = [z1[i], z2[j]]
+                Z[j][i] = np.dot((z_i - c), np.dot(A, (z_i - c)))-1
+
+        plt.contour(Z1, Z2, Z, 0)
+
+    plt.xlim(-maxPlotLimit, maxPlotLimit)
+    plt.ylim(-maxPlotLimit, maxPlotLimit)
+    plt.xlabel(r'$z_1$')
+    plt.ylabel(r'$z_2$')
+    '''
     plotLimit = max(np.max(z), np.abs(np.min(z)));
     plotLimit *= 1.2
     plt.xlabel(r'$z_1$')
@@ -243,8 +266,8 @@ def plot_levelsets(array,z):
         (wwidth, hheight, aangle) = ellipsoid_parameters_m1(matrix)
         ellipse = Ellipse(xy=(vector[0], vector[1]), width=wwidth, height=hheight, angle=aangle * 180 / (np.pi),
                           edgecolor=color[i%5], fc='None', lw=1, alpha=0.5)
-        ax.add_artist(ellipse)  
-    
+        ax.add_artist(ellipse)
+    '''
  
 def plot_best2(array,z,w):
     
@@ -257,7 +280,7 @@ def plot_best2(array,z,w):
     Z = np.ones_like(Z1)
     color=np.array(['y','b','r','c','g'])
     
-    for r in range(len(array)):
+    for r in range(array.shape[0]):
         matrix, vector=phi(array[r,:],2)
         
         for i in range(len(z1)):
@@ -266,7 +289,7 @@ def plot_best2(array,z,w):
                 Z[j][i] = (np.dot(z_i, np.dot(matrix, z_i)) + np.dot(vector, z_i)) - 1
         
     
-        plt.contourf((Z1),(Z2),Z,0)
+        plt.contour(Z1,Z2,Z,0)
         
     plt.xlim(-maxPlotLimit, maxPlotLimit)
     plt.ylim(-maxPlotLimit, maxPlotLimit)
