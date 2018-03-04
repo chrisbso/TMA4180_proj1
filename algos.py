@@ -8,6 +8,16 @@ Created on Thu Mar  1 19:41:24 2018
 #import packages
 import numpy as np
 import matplotlib.pyplot as plt
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar  1 19:41:24 2018
+
+@author: Anne Sur
+"""
+
+#import packages
+import numpy as np
+import matplotlib.pyplot as plt
 from evaluate_f_gradf import *
 from generate_testproblem import *
 
@@ -62,8 +72,10 @@ def phi_inv(matrix, vector):
 def backtracking(func, gradfunc, x,A, vec, p, start, rho, c_1, dim):
     
     alpha=start  
-     
-    A_new,vec_new=phi(x+alpha*p, dim)
+    
+    #alpha=-(np.dot(gradfunc(A,vec),p))/(np.linalg.norm(p,2))
+         
+    A_new,vec_new = phi(x+alpha*p, dim)
     
     while func(A_new,vec_new)>func(A, vec)+c_1*alpha*gradfunc(A,vec).dot(p):
         
@@ -82,14 +94,15 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     A,vec=phi(x,dim)
     p=(-1)*gradfunc(A,vec)
     
-    
+        
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
           (k, func(A,vec), np.linalg.norm(p,2), alpha))
     
     while  (np.linalg.norm(p,2)>tol/100): #and (alpha > tol*10**-3)
         
-        #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
-              #(k, func(A,c), np.linalg.norm(p,2), alpha))
+        if(k==1):
+            print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
+                  (k, func(A,c), np.linalg.norm(p,2), alpha))
               
         alpha= backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
@@ -103,7 +116,7 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     return x
 
 
-def gauss_newton(func, gradfunc,initial_data, initial_alpha,rho,
+def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
                  c_1, tol, dim, z, w):
     
     m = z.shape[1]
@@ -119,23 +132,64 @@ def gauss_newton(func, gradfunc,initial_data, initial_alpha,rho,
               (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
     
     while (np.linalg.norm(gradfunc(A,vec),2)>tol/100): #and alpha > tol/100000 
-        A,vec=phi(x,dim)
+        
+        if(k==1):
+            print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
+                  (k, func(A,c), np.linalg.norm(p,2), alpha))
+        
         for i in range(m):
             z_i = z[:,i]
             w_i = w[i]
             J[i,:]=w_i*evaluate_grad_r_i_m1(z_i,A,vec)
-            tail = w_i*2 * np.matmul(vec-z_i,A) #only for model 1
-            
-            J[i,int(dim*(dim+1)/2):] = tail
             r[i]=evaluate_r_i_m1(z_i,w_i,A,vec)
                 
         matrix= np.matmul(np.linalg.inv(np.matmul(J.T,J)), J.T)
         p=- np.matmul(matrix,r)
-        print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
-              (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
+        
+        #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
+              #(k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
         
         alpha=backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
+        A,vec=phi(x,dim)
+        k += 1
+    
+    print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
+              (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
+    return x
+
+def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
+                 c_1, tol, dim, z, w):
+    
+    m = z.shape[1]
+    k=0
+    x= initial_data
+    alpha=initial_alpha
+    
+    J=np.zeros((m,len(x)))
+    r=np.zeros(m)
+    A,vec=phi(x,dim)
+    
+    print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
+              (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
+    
+    while (np.linalg.norm(gradfunc(A,vec),2)>tol/100): #and alpha > tol/100000 
+        
+        for i in range(m):
+            z_i = z[:,i]
+            w_i = w[i]
+            J[i,:]=w_i*evaluate_grad_r_i_m2(z_i,A)
+            r[i]=evaluate_r_i_m2(z_i,w_i,A,vec)
+                
+        matrix= np.matmul(np.linalg.inv(np.matmul(J.T,J)), J.T)
+        p=- np.matmul(matrix,r)
+        
+        #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
+              #(k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
+        
+        alpha=backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
+        x= x+ alpha*p
+        A,vec=phi(x,dim)
         k += 1
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
@@ -149,6 +203,8 @@ if __name__ == "__main__":
     dim=2
     A = generate_rnd_PD_mx(dim)
     c = np.array([1,1]) # need c from other programm!
+    b= np.random.rand(2)
+    
     
     (z, w) = generate_rnd_points_m1(A, c, 200)
     
@@ -157,8 +213,8 @@ if __name__ == "__main__":
     gradf = lambda A,c: evaluate_grad_f_m1(z,w,A,c)
     
     # for model 2
-    #g= lambda A,b: 
-    #gradg = lambda A,b: 
+    g= lambda A,b: evaluate_f_m2(z, w, A, b)
+    gradg = lambda A,b: evaluate_grad_f_m2(z,w,A,b)
     
     
     (wwidth, hheight, aangle) = ellipsoid_parameters_m1(A)
@@ -168,7 +224,7 @@ if __name__ == "__main__":
     print(tolerance)
     
     
-    alpha=1
+    alpha=10
     rho=0.5
     c_1= 0.25
     # for inital values
@@ -176,14 +232,24 @@ if __name__ == "__main__":
     c_initial = np.random.rand(dim)
     x_initial=phi_inv(A_initial, c_initial)
     
+    print('Model 1')
     #STEEPEST DESCENT
+    print('steepest descent')
     steepest_descent(f, gradf,x_initial, alpha,rho, c_1, tolerance, dim)   
-    
+    print('')
     #GAUSS NEWTON
-    #gauss_newton(f, gradf,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    print('Gauß-Newton')
+    gauss_newton_m1(f, gradf,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
     
+    print('')
     
-    M=np.array([[1,2],[3,4]])
-    (width, height, angle)=ellipsoid_parameters_m1(M)
-    #print(width)
-    #print(height)
+    print('Model 2')
+    #STEEPEST DESCENT
+    print('steepest descent')
+    steepest_descent(g, gradg,x_initial, alpha,rho, c_1, tolerance, dim)   
+    print('')
+    #GAUSS NEWTON
+    print('Gauß-Newton')
+    gauss_newton_m2(g, gradg,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    print('')
+    
