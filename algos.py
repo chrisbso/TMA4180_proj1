@@ -64,6 +64,7 @@ def backtracking(func, gradfunc, x,A, vec, p, start, rho, c_1, dim):
     alpha=start  
     
     #alpha=-(np.dot(gradfunc(A,vec),p))/(np.linalg.norm(p,2))
+    #print(alpha)
          
     A_new,vec_new = phi(x+alpha*p, dim)
     
@@ -82,6 +83,7 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     x= initial_data
     alpha=initial_alpha
     conv=np.zeros(1)
+    matrix=np.zeros((1,len(x)))
     A,vec=phi(x,dim)
     p=(-1)*gradfunc(A,vec)
     
@@ -94,8 +96,12 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
         if(k==1):
             print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
                   (k, func(A,c), np.linalg.norm(p,2), alpha))
+        if(k%100==0):
+            conv = np.append(conv,func(A,vec))
+            
+            matrix=np.concatenate((matrix, x.reshape((1, len(x)))), axis=0)
+            
         
-        conv = np.append(conv,func(A,vec))
         alpha= backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
         A,vec=phi(x,dim)
@@ -105,7 +111,7 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
           (k, func(A,vec), np.linalg.norm(p,2), alpha))
  
-    return x, conv
+    return x, conv,matrix
 
 
 def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
@@ -115,6 +121,7 @@ def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
     k=0
     x= initial_data
     alpha=initial_alpha
+    M=np.zeros((1,len(x)))
     
     J=np.zeros((m,len(x)))
     r=np.zeros(m)
@@ -141,7 +148,10 @@ def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
         
         #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               #(k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
-        conv = np.append(conv,func(A,vec))
+        if(k%100==0):
+            conv = np.append(conv,func(A,vec))
+            M=np.concatenate((M, x.reshape((1, len(x)))), axis=0)
+
         
         alpha=backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
@@ -150,7 +160,7 @@ def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
-    return x,conv
+    return x,conv, M
 
 def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
                  c_1, tol, dim, z, w):
@@ -159,6 +169,7 @@ def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
     k=0
     x= initial_data
     alpha=initial_alpha
+    M=np.zeros((1,len(x)))
     
     J=np.zeros((m,len(x)))
     r=np.zeros(m)
@@ -181,7 +192,9 @@ def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
         
         #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               #(k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
-        conv = np.append(conv,func(A,vec))
+        if(k%100==0):
+            conv = np.append(conv,func(A,vec))
+            M=np.concatenate((M, x.reshape((1, len(x)))), axis=0)
         
         alpha=backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
@@ -190,7 +203,7 @@ def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
-    return x,conv
+    return x,conv, M
 
 
 def plot_convergence(conv_1, conv_2, color_1, color_2, label1,label2):
@@ -198,8 +211,8 @@ def plot_convergence(conv_1, conv_2, color_1, color_2, label1,label2):
     #n=max(len(conv_1),len(conv_2))
     n=len(conv_1)
     m=len(conv_2)
-    grid = np.arange(0,n,1)
-    grid2=np.arange(0,m,1)
+    grid = np.arange(0,n,1)*100
+    grid2=np.arange(0,m,1)*100
                
         
     # plot using loglog scale
@@ -213,15 +226,63 @@ def plot_convergence(conv_1, conv_2, color_1, color_2, label1,label2):
     # show also the legend and title
     plt.tight_layout(pad=7)
     
+def plot_levelsets(array,z):
     
+    plotLimit = max(np.max(z), np.abs(np.min(z)));
+    plotLimit *= 1.2
+    plt.xlabel(r'$z_1$')
+    plt.ylabel(r'$z_2$')
+    ax = plt.gca()
+    ax.set_xlim(-plotLimit,plotLimit)
+    ax.set_ylim(-plotLimit,plotLimit)
+    color=np.array(['y','b','r','c','g'])
+    
+    for i in range(len(array)):
+        matrix, vector=phi(array[i,:],2)
+        
+        (wwidth, hheight, aangle) = ellipsoid_parameters_m1(matrix)
+        ellipse = Ellipse(xy=(vector[0], vector[1]), width=wwidth, height=hheight, angle=aangle * 180 / (np.pi),
+                          edgecolor=color[i%5], fc='None', lw=1, alpha=0.5)
+        ax.add_artist(ellipse)  
+    
+ 
+def plot_best2(array,z,w):
+    
+    maxPlotLimit = max(np.max(z),np.abs(np.min(z)));
+    maxPlotLimit *= 1.5
+
+    delta = 0.1
+    z1 = z2 = np.arange(-maxPlotLimit, maxPlotLimit, delta)
+    Z1, Z2 = np.meshgrid(z1, z2)
+    Z = np.ones_like(Z1)
+    color=np.array(['y','b','r','c','g'])
+    
+    for r in range(len(array)):
+        matrix, vector=phi(array[r,:],2)
+        
+        for i in range(len(z1)):
+            for j in range(len(z1)):
+                z_i = [z1[i], z2[j]]
+                Z[j][i] = (np.dot(z_i, np.dot(matrix, z_i)) + np.dot(vector, z_i)) - 1
+        
+    
+        plt.contourf((Z1),(Z2),Z,0)
+        
+    plt.xlim(-maxPlotLimit, maxPlotLimit)
+    plt.ylim(-maxPlotLimit, maxPlotLimit)
+    plt.xlabel(r'$z_1$')
+    plt.ylabel(r'$z_2$')
+    
+
 
 if __name__ == "__main__":
     
-
+    
+    
     dim=2
     A = generate_rnd_PD_mx(dim)
-    c = np.array([1,1]) # need c from other programm!
-    b= np.random.rand(2)
+    c = np.random.rand(dim)# need c from other programm!
+    b= np.random.rand(dim)
     
     
     (z, w) = generate_rnd_points_m1(A, c, 200)
@@ -242,22 +303,26 @@ if __name__ == "__main__":
     print(tolerance)
     
     
-    alpha=10
+    alpha=20
     rho=0.5
     c_1= 0.25
     # for inital values
     A_initial = generate_rnd_PD_mx(dim)
     c_initial = np.random.rand(dim)
-    x_initial=phi_inv(A_initial, c_initial)
+    x_initial1=phi_inv(A_initial, c_initial)
+    
+    A_initial = generate_rnd_mx(dim)
+    b_initial = generate_rnd_b_c(dim)
+    x_initial2=phi_inv(A_initial, b_initial)
     
     print('Model 1')
     #STEEPEST DESCENT
     print('steepest descent')
-    min1,conv1=steepest_descent(f, gradf,x_initial, alpha,rho, c_1, tolerance, dim) 
+    min1,conv1,v1=steepest_descent(f, gradf,x_initial1, alpha,rho, c_1, tolerance, dim) 
     print('')
     #GAUSS NEWTON
     print('Gauß-Newton')
-    min2,conv2=gauss_newton_m1(f, gradf,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    min2,conv2,v2=gauss_newton_m1(f, gradf,x_initial2, alpha,rho,c_1, tolerance, dim, z, w)
     
     
     print('')
@@ -265,19 +330,20 @@ if __name__ == "__main__":
     print('Model 2')
     #STEEPEST DESCENT
     print('steepest descent')
-    min3,conv3=steepest_descent(g, gradg,x_initial, alpha,rho, c_1, tolerance, dim)   
+    min3,conv3,v3=steepest_descent(g, gradg,x_initial1, alpha,rho, c_1, tolerance, dim)   
     print('')
     #GAUSS NEWTON
     print('Gauß-Newton')
-    min4,conv4=gauss_newton_m2(g, gradg,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    min4,conv4,v4=gauss_newton_m2(g, gradg,x_initial2, alpha,rho,c_1, tolerance, dim, z, w)
     print('')
     
+    
+    '''
     #first figure
     plt.figure(1)
     plot_convergence(conv1, conv2, 'g', 'c','steepest descent','Gauß-Newton')
     string="Model 1, alpha=10"
     plt.title(string)
-    plt.show()
     
        
     
@@ -285,19 +351,59 @@ if __name__ == "__main__":
     plot_convergence(conv3, conv4, 'g', 'c','steepest descent','Gauß-Newton')
     string="Model 2, alpha=10"
     plt.title(string)
-    plt.show()
     
     
     plt.figure(3)
     plot_convergence(conv1, conv3, 'r', 'k','Model 1','Model 2')
     string="steepest descent, alpha=10"
     plt.title(string)
-    plt.show()
     
     
     plt.figure(4)
     plot_convergence(conv2, conv4, 'r', 'k','Model 1','Model 2')
     string="Gauß-Newton, alpha=10"
     plt.title(string)
+    '''
+    
+    plt.figure(5)
+    plt.plot(np.take(z[0,:],np.where(w==1)[0]),np.take(z[1,:],np.where(w==1)[0]),'ro')
+    plt.plot(np.take(z[0,:],np.where(w==-1)[0]),np.take(z[1,:],np.where(w==-1)[0]),'bo')
+    plot_levelsets(v1,z)
+    (wwidth, hheight, aangle) = ellipsoid_parameters_m1(A)
+    ellipse = Ellipse(xy=(c[0], c[1]), width=wwidth, height=hheight, angle=aangle * 180 / (np.pi),
+                          edgecolor='k', fc='None', lw=2, ls='--')
+    ax = plt.gca()
+    ax.add_artist(ellipse)
+    plt.title('Model 1, steepest descent')
     plt.show()
+    
+    plt.figure(6)
+    plt.plot(np.take(z[0,:],np.where(w==1)[0]),np.take(z[1,:],np.where(w==1)[0]),'ro')
+    plt.plot(np.take(z[0,:],np.where(w==-1)[0]),np.take(z[1,:],np.where(w==-1)[0]),'bo')
+    plot_levelsets(v2,z)
+    (wwidth, hheight, aangle) = ellipsoid_parameters_m1(A)
+    ellipse = Ellipse(xy=(c[0], c[1]), width=wwidth, height=hheight, angle=aangle * 180 / (np.pi),
+                          edgecolor='k', fc='None', lw=2, ls='--')
+    ax = plt.gca()
+    ax.add_artist(ellipse)
+    plt.title('Model 1, Gauß-Newton')
+    plt.show()
+    
+    
+    plt.figure(7)
+    plt.plot(np.take(z[0,:],np.where(w==1)[0]),np.take(z[1,:],np.where(w==1)[0]),'ro')
+    plt.plot(np.take(z[0,:],np.where(w==-1)[0]),np.take(z[1,:],np.where(w==-1)[0]),'bo')
+    #plot_levelsets(v3,z)
+    plot_best2(v3,z,w)
+    plt.title('Model 2, steepest descent')
+    plt.show()
+    
+    plt.figure(8)
+    plt.plot(np.take(z[0,:],np.where(w==1)[0]),np.take(z[1,:],np.where(w==1)[0]),'ro')
+    plt.plot(np.take(z[0,:],np.where(w==-1)[0]),np.take(z[1,:],np.where(w==-1)[0]),'bo')
+    #plot_levelsets(v4,z)
+    plot_best2(v4,z,w)
+    plt.title('Model 2, Gauß-Newton')
+    plt.show()
+    
     
