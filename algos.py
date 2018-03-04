@@ -8,16 +8,6 @@ Created on Thu Mar  1 19:41:24 2018
 #import packages
 import numpy as np
 import matplotlib.pyplot as plt
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  1 19:41:24 2018
-
-@author: Anne Sur
-"""
-
-#import packages
-import numpy as np
-import matplotlib.pyplot as plt
 from evaluate_f_gradf import *
 from generate_testproblem import *
 
@@ -91,6 +81,7 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     k=0
     x= initial_data
     alpha=initial_alpha
+    conv=np.zeros(1)
     A,vec=phi(x,dim)
     p=(-1)*gradfunc(A,vec)
     
@@ -103,7 +94,8 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
         if(k==1):
             print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
                   (k, func(A,c), np.linalg.norm(p,2), alpha))
-              
+        
+        conv = np.append(conv,func(A,vec))
         alpha= backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
         A,vec=phi(x,dim)
@@ -113,7 +105,7 @@ def steepest_descent(func, gradfunc,initial_data, initial_alpha,rho, c_1, tol, d
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
           (k, func(A,vec), np.linalg.norm(p,2), alpha))
  
-    return x
+    return x, conv
 
 
 def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
@@ -126,6 +118,7 @@ def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
     
     J=np.zeros((m,len(x)))
     r=np.zeros(m)
+    conv=np.zeros(1)
     A,vec=phi(x,dim)
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
@@ -148,6 +141,7 @@ def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
         
         #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               #(k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
+        conv = np.append(conv,func(A,vec))
         
         alpha=backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
@@ -156,7 +150,7 @@ def gauss_newton_m1(func, gradfunc,initial_data, initial_alpha,rho,
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
-    return x
+    return x,conv
 
 def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
                  c_1, tol, dim, z, w):
@@ -168,6 +162,7 @@ def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
     
     J=np.zeros((m,len(x)))
     r=np.zeros(m)
+    conv=np.zeros(1)
     A,vec=phi(x,dim)
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
@@ -186,6 +181,7 @@ def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
         
         #print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               #(k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
+        conv = np.append(conv,func(A,vec))
         
         alpha=backtracking(func, gradfunc, x, A,vec, p, alpha, rho, c_1,dim)
         x= x+ alpha*p
@@ -194,8 +190,30 @@ def gauss_newton_m2(func, gradfunc,initial_data, initial_alpha,rho,
     
     print("Iter: %3d, f=%15.6e, ||grad f||=%15.6e, steplength=%15.6e" % \
               (k, func(A,vec), np.linalg.norm(gradfunc(A,vec),2), alpha))
-    return x
+    return x,conv
 
+
+def plot_convergence(conv_1, conv_2, color_1, color_2, label1,label2):
+    
+    #n=max(len(conv_1),len(conv_2))
+    n=len(conv_1)
+    m=len(conv_2)
+    grid = np.arange(0,n,1)
+    grid2=np.arange(0,m,1)
+               
+        
+    # plot using loglog scale
+    plt.loglog(grid, conv_1,'-',label=label1, color=color_1)
+    plt.loglog(grid2, conv_2,'-',label=label2, color=color_2)
+    
+    plt.xlabel("iterations")
+    plt.ylabel("objective function")
+    #plot legend
+    plt.legend(loc=9, bbox_to_anchor=(0.5, -0.2), ncol=2)
+    # show also the legend and title
+    plt.tight_layout(pad=7)
+    
+    
 
 if __name__ == "__main__":
     
@@ -235,21 +253,47 @@ if __name__ == "__main__":
     print('Model 1')
     #STEEPEST DESCENT
     print('steepest descent')
-    steepest_descent(f, gradf,x_initial, alpha,rho, c_1, tolerance, dim)   
+    min1,conv1=steepest_descent(f, gradf,x_initial, alpha,rho, c_1, tolerance, dim) 
     print('')
     #GAUSS NEWTON
     print('Gauß-Newton')
-    gauss_newton_m1(f, gradf,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    min2,conv2=gauss_newton_m1(f, gradf,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    
     
     print('')
     
     print('Model 2')
     #STEEPEST DESCENT
     print('steepest descent')
-    steepest_descent(g, gradg,x_initial, alpha,rho, c_1, tolerance, dim)   
+    min3,conv3=steepest_descent(g, gradg,x_initial, alpha,rho, c_1, tolerance, dim)   
     print('')
     #GAUSS NEWTON
     print('Gauß-Newton')
-    gauss_newton_m2(g, gradg,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
+    min4,conv4=gauss_newton_m2(g, gradg,x_initial, alpha,rho,c_1, tolerance, dim, z, w)
     print('')
+    
+    #first figure
+    plt.figure(1)
+    plot_convergence(conv1, conv2, 'g', 'c','steepest descent','Gauß-Newton')
+    string="Model 1, alpha=10"
+    plt.title(string)
+    
+       
+    
+    plt.figure(2)
+    plot_convergence(conv3, conv4, 'g', 'c','steepest descent','Gauß-Newton')
+    string="Model 2, alpha=10"
+    plt.title(string)
+    
+    
+    plt.figure(3)
+    plot_convergence(conv1, conv3, 'r', 'k','Model 1','Model 2')
+    string="steepest descent, alpha=10"
+    plt.title(string)
+    
+    
+    plt.figure(4)
+    plot_convergence(conv2, conv4, 'r', 'k','Model 1','Model 2')
+    string="Gauß-Newton, alpha=10"
+    plt.title(string)
     
